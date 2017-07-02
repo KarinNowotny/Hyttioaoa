@@ -3,12 +3,6 @@
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
                     Version 2, December 2004
 
- Copyright (C) 2004 Sam Hocevar
-  14 rue de Plaisance, 75014 Paris, France
- Everyone is permitted to copy and distribute verbatim or modified
- copies of this license document, and changing it is allowed as long
- as the name is changed.
-
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
@@ -23,8 +17,352 @@
         <script src="src/bootstrap.js" type="text/javascript"></script>
         <script src="src/vue.js" type="text/javascript"></script>
         <link href="css/bootstrap.css" rel="stylesheet" type="text/css"/>
+        <style>
+            .jumbotron {
+                background-image: 
+                    linear-gradient(to left, rgba(255, 255, 255, 0) 20%, rgba(255, 255, 255, 1) 40%), 
+                    url('/media/jumbotron.jpg');
+                background-repeat: no-repeat;
+                background-position: right 0px top 45px;
+                background-size: auto 100%;    
+                margin-bottom:-20px;
+            }
+            h1 {
+                padding:20px 0px; 
+           }
+           sub {
+               top:-10px;
+               color:#AAA;
+               font-style: italic;
+           }
+           #dialogPopup {
+               position: fixed;
+               height:100%;
+               width:100%;
+               background-color: rgba(0,0,0,0.6);
+               z-index: 10000;
+               display:inline-block;
+           }
+           div.dialogPanel {
+               display:block;
+               position:relative;
+               width: 50%;
+               margin-left: auto;
+               margin-right: auto;
+               top:35%;
+           }
+           a.dialogPanel {
+               display:block;
+               margin:5px;
+               width:150px;
+               margin-left:auto;
+           }
+        </style>
     </head>
     <body>
-        <div id="app"></div>
+        <div id="main">
+            <div id="dialogPopup" v-if="errorMessage">
+                <div class="panel panel-danger dialogPanel">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{{errorMessage.title}}</h3>
+                    </div>
+                    <div class="panel-body">
+                        {{errorMessage.body}}
+                    </div>
+                    <a class="btn btn-info dialogPanel"
+                       v-on:click="errorMessage = undefined">
+                        lol, k.
+                    </a>
+                </div>
+            </div>
+
+            <nav class="navbar navbar-inverse navbar-fixed-top">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" 
+                                data-toggle="collapse" data-target="#navbar" 
+                                aria-expanded="false" aria-controls="navbar">
+                            <span class="sr-only">Toggle navigation</span>
+                        </button>
+                        <a class="navbar-brand" href="#" 
+                           v-on:click="threadView.isVisible=false;threadEditor.isVisible=false">
+                            <i class="glyphicon glyphicon-pawn"></i> haveyoutriedturningitoffandonaga.in
+                        </a>
+                        <audio id="nbs" style="display:none"
+                            src="/media/button.wav">
+                        </audio>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <form class="navbar-form navbar-right">
+                            <div class="form-group">
+                                <input type="text" placeholder="Username" 
+                                       class="form-control" v-model="username"
+                                       v-if="!loggedIn">
+                            </div>
+                            <div class="form-group">
+                                <input type="password" placeholder="Password" 
+                                       class="form-control" v-model="password"
+                                       v-if="!loggedIn">
+                            </div>
+                            <a class="btn btn-success" 
+                                    v-if="!loggedIn" v-on:click="logIn">
+                                Log in
+                            </a>
+                            <a class="btn btn-info"
+                                    v-if="!loggedIn" v-on:click="signIn">
+                                Create account
+                            </a>
+                            <a class="btn btn-danger"
+                                    v-if="loggedIn" v-on:click="logOut">
+                                Log out
+                            </a>
+                        </form>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="jumbotron" v-if="!(threadView.isVisible || threadEditor.isVisible)">
+                <div class="container">
+                    <h1>You are stupid.</h1>
+                    <p>
+                        But you're not alone - welcome to our vibrant community
+                        of imbeciles!<br/>Here, you can give and receive help in
+                        a huge variety of topics.<br/><br/>Feel free to browse through
+                        the questions below - and if your body is ready,<br/>click 
+                        below to share your smelly brain fart with the world!
+                    </p><br/>
+                    <a class="btn btn-primary btn-lg" href="#" role="button"
+                       onclick="makeButtonSound()"
+                       v-on:click="threadEditor.isVisible = true;threadView.isVisible = false;;">Ask a question &raquo;</a>
+                </div>
+            </div>
+            <hr>
+                        
+            <div class="container" v-if="!(threadView.isVisible || threadEditor.isVisible)">
+                <div class="row">
+                    <div v-for="(tp, tpid) in threadPreview.data">
+                        <div class="col-md-4">
+                            <h2>"{{tp.title}}"</h2>
+                            <sub>
+                                Date: {{new Date(tp.date).toLocaleString()}} - Author: "{{tp.author}}" - 
+                                {{tp.responseCount}} answers - 
+                                {{tp.acceptedResponseCount > 0 ?"Unsolved":"Solved"}}
+                            </sub>
+                            <p>{{tp.body.substring(0,110).trim() + (tp.body.length>110?"...":"")}}</p>
+                            <a class="btn btn-default" href="#" role="button"
+                               v-on:click="loadThread(tpid)">
+                                Show thread &raquo;
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <nav aria-label="Page navigation" style="text-align:right">
+                        <ul class="pagination">
+                            <li v-for="n in Math.ceil(threadPreview.totalThreadCount/threadPreview.threadsPerPage)"><a href="#" v-on:click="threadPreview.currentPage=(n);loadThreadPreviews()">{{n}}</a></li>
+                            <li>
+                                &nbsp;
+                                <div class="btn-group dropup">
+                                    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="glyphicon glyphicon-remove-sign" v-if="threadPreview.filterId == 0"></i>
+                                        <i class="glyphicon glyphicon-ok-sign" v-if="threadPreview.filterId > 0"></i>
+                                        Filter... 
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a href="#" v-on:click="threadPreview.filterId=0;loadThreadPreviews()">Show all</a></li>
+                                        <li><a href="#" v-on:click="threadPreview.filterId=1;loadThreadPreviews()">Unanswered</a></li>
+                                        <li><a href="#" v-on:click="threadPreview.filterId=2;loadThreadPreviews()">Unsolved</a></li>
+                                        <li role="separator" class="divider" v-if="loggedIn"></li>
+                                        <li><a href="#" v-on:click="threadPreview.filterId=3;loadThreadPreviews()" v-if="loggedIn">Answered by me</a></li>
+                                        <li><a href="#" v-on:click="threadPreview.filterId=4;loadThreadPreviews()" v-if="loggedIn">Created by me</a></li>
+                                    </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div> 
+
+            <div class="container" v-if="threadView.isVisible">
+                <h1>"{{threadView.title}}"<small> by {{threadView.author}}</small></h1>
+                <sub>Date: {{new Date(threadView.date).toLocaleString()}}</sub>
+                <p>{{threadView.body}}</p><br/>
+                
+                <h3>Answers:</h3><br/>
+                <div class="panel panel-default" v-for="(a, aid) in threadView.answers">
+                    <div class="panel-heading">
+                        <span>"{{a.author}}" wrote:</span>
+                        <span style="float:right">
+                            <div v-if="username==threadView.author">
+                                Mark as accepted answer:
+                                <a href="#" v-if="!a.isAccepted" v-on:click="changeAnswerState(aid, true)">
+                                    <i class="glyphicon glyphicon-unchecked"></i>
+                                </a>
+                                <a href="#" v-if="a.isAccepted" v-on:click="changeAnswerState(aid, false)">
+                                    <i class="glyphicon glyphicon-check"></i>
+                                </a>
+                            </div>
+                            <div v-if="username!=threadView.author">
+                                Accepted answer:
+                                <i v-if="!a.isAccepted" class="glyphicon glyphicon-unchecked"></i>
+                                <i v-if="a.isAccepted" class="glyphicon glyphicon-checked"></i>
+                            </div>
+                        </span>
+                    </div>
+                    <div class="panel-body">
+                        {{a.body}}
+                    </div>
+                </div><br/>
+                
+                <div v-if="loggedIn">
+                <h3>Your answer:</h3><br/>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <textarea placeholder="Write your answer text here..." rows="4"
+                                  v-model="threadView.userAnswerText" style="width:100%"></textarea>
+                    </div>
+                    
+                    <div class="panel-footer" style="text-align:right">
+                        <a class="btn btn-primary btn-md" href="#" role="button"
+                       v-on:click="postAnswer" onclick="makeButtonSound()">Post answer</a>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <div class="container" v-if="threadEditor.isVisible">
+                <h1>Ask your stupid question!</h1>
+                <input maxlength='50' class="form-control" placeholder="Insert a short description of your question here. Or your complete question, including a shitload of typos."
+                       v-model="threadEditor.title" style="width:100%">
+                <br/>
+                <textarea class="form-control" placeholder="Write your detailled question description here! Or leave it blank, I don't care." rows="8"
+                          v-model="threadView.userAnswerText" style="width:100%"></textarea>
+                          <br/>
+                <a class="btn btn-primary btn-md" href="#" role="button" style="float:right"
+                       v-on:click="createThread" onclick="makeButtonSound()">Post question</a>
+            </div>
+
+            <hr>
+            <div class="container">
+                <footer>
+                    <p>&copy; 2017 Web Engineering Ist Schon Ziemlich Geil Ltd.</p>
+                </footer>
+            </div>
+        </div>
+
+        <script>
+            //A very important core functionality and USP of our platform
+            var makeButtonSound = function() {
+                document.getElementById('nbs').play();
+            };
+    //The main vue app        
+    var app = new Vue({
+                el: '#main',
+                data: {
+                    errorMessage: undefined,//Will reset to undefined if dialog is closed by user
+                    /*//Just assign an object in the following structure to this
+                      //variable to show an error dialog.
+                        errorMessage: {
+                        title: "Fuck, an error!",
+                        body: "Well, shit. Idk what happened. Better press OK.",
+                    },*/
+                  username: "",
+                  password: "",
+                  loggedIn: false,
+                  threadPreview: {
+                      filterId:0,
+                      currentPage:1,//Does not start with 0!
+                      threadsPerPage: 20,//Doesn't have to be changed anywhere
+                      totalThreadCount: 1,//Update this...
+                      data: {//...and that in the "loadThreadPreview" method
+                        "-1": {
+                            title: "Am I preganart?",
+                            date: Date.now(),
+                            author: "MandyGirlXoxo",
+                            body: "Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls.",
+                            responseCount: 1,
+                            acceptedResponseCount: 1
+                        }
+                    }
+                  },
+                  threadView: {
+                      isVisible: false,
+                      title: "Am I preganart?",
+                      date: Date.now(),
+                      author: "MandyGirlXoxo",
+                      body: "Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls.",
+                      answers: {
+                          "3": {
+                              author:"RandyBrandy8==D",
+                              date: Date.now(),
+                              body: "you r wut bitch u said ur on bird control fuk u !1!!eleven",
+                              isAccepted: false
+                          },
+                          "19": {
+                              author:"DrSanchez",
+                              date: Date.now(),
+                              body: "I make u cheap offer 4 abortion and give you discount for viagra then also!"
+                          }
+                      },
+                      userAnswerText: ""//Contains the users answer text - only available if logged in
+                  },
+                  threadEditor: {
+                      isVisible: false,
+                      title: "",//Contains the user-entered question title
+                      body: ""//Contains the user-entered question text
+                  }
+                },
+                methods: {
+                    //If problems occur, assign error object to this.errorMessage
+                    logIn: function() {
+                        //Log in user with variables "this.username" and
+                        //"this.password" and set "loggedIn" to true.
+                        this.loggedIn = true;
+                    },
+                    signIn: function() {
+                        //Sign in user with variables "this.username" and
+                        //"this.password" and set "loggedIn" to true.
+                        this.loggedIn = true;
+                    },
+                    logOut: function() {
+                        //Sign in user with variables "this.username" and
+                        //"this.password" and set "loggedIn" to true.
+                        this.loggedIn = false;
+                    },
+                    loadThreadPreviews: function() {
+                        ////Load the thread previews from the server, show the
+                        //thread preview and hide the single thread view and
+                        //the thread editor.
+                        this.threadEditor.isVisible = false;
+                        this.threadView.isVisible = false;
+                    },
+                    loadThread: function(threadId) {
+                        //Load the thread with the specified id, hide threads
+                        //preview and editor, clear user answer field, 
+                        //show thread view.
+                        this.threadEditor.isVisible = false;
+                        this.threadView.isVisible = true;
+                    },
+                    changeAnswerState: function(answerId, isAccepted) {
+                        //Mark answer as accepted on the server and update value
+                        //here (loadThread again, checked boxes may not update otherwise)
+                        this.threadView.answers[answerId].isAccepted = isAccepted;
+                    },
+                    postAnswer: function() {
+                        //Push the answer from this.threadView.userAnswerText to 
+                        //the current thread to the server. Clear the answer, 
+                        //reload via "loadThread".
+                        this.threadView.userAnswerText = "";
+                    },
+                    createThread: function() {
+                        //Take the data from threadEditor and post it to the server,
+                        //then go back to the start screen and reload the threads
+                        this.threadEditor.isVisible = false;
+                        this.threadView.isVisible = false;
+                    }
+                }
+              });
+        </script>
     </body>
 </html>
