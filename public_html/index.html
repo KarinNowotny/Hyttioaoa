@@ -317,22 +317,15 @@ q<!DOCTYPE html>
                     },
                     methods: {
                     //If problems occur, assign error object to this.errorMessage
-                    //logIn: function() {
-                    //Log in user with variables "this.username" and
-                    //"this.password" and set "loggedIn" to true. 
-                    //this.loggedIn = true;
-                    //},
-                    signIn: function() {
-                    //Sign in user with variables "this.username" and
-                    //"this.password" and set "loggedIn" to true.
+
+		    logIn: function() {
 
 			    $.ajax({
-				    url: 'http://localhost:8080/users',
-				    type: 'POST',
+				    url: 'http://localhost:8080/users/login',
+				    type: 'GET',
 				    dataType: 'jsonp',
-				    data: {
-					    username: this.username,
-					    password: this.password
+				    beforeSend: function (xhr) {
+					    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
 				    }
 			    })
 			    .done(function(){
@@ -343,7 +336,10 @@ q<!DOCTYPE html>
 					    this.errorMessage.title = 'Error during registration.';
 					    this.errorMessage.body = 'Username already exists.';
 				    } else {
-					    if (jqXHR.status == 400){
+					    if(jqXHR.status == 200) {
+				    		this.loggedIn = true;
+					    }
+					    else if (jqXHR.status == 400){
 						    this.errorMessage.title = 'Invalid request body.';
 						    this.errorMessage.body = 'The server cannot handle this request.';
 					    } else {
@@ -353,7 +349,41 @@ q<!DOCTYPE html>
 				    }
 			    });
 
+
 		    },
+
+                    signIn: function() {
+                    //Sign in user with variables "this.username" and
+                    //"this.password" and set "loggedIn" to true.
+
+		    $.ajax({
+			    url: 'http://localhost:8080/users',
+			    type: 'POST',
+			    dataType: 'jsonp',
+			    data: {
+				    username: this.username,
+				    password: this.password
+			    }
+		    })
+		    .done(function(){
+			    this.loggedIn = true;
+		    })
+		    .fail(function(jqXHR, Exception) {
+			    if (jqXHR.status == 404){
+				    this.errorMessage.title = 'Error during registration.';
+				    this.errorMessage.body = 'Username already exists.';
+			    } else {
+				    if (jqXHR.status == 400){
+					    this.errorMessage.title = 'Invalid request body.';
+					    this.errorMessage.body = 'The server cannot handle this request.';
+				    } else {
+					    this.errorMessage.title = 'Uncaught error.';
+					    this.errorMessage.body = jqXHR.responseText;
+				    }
+			    }
+		    });
+
+	    },
 
                     logOut: function() {
 			    this.username = "";
@@ -433,7 +463,7 @@ q<!DOCTYPE html>
                             //Mark answer as accepted on the server and update value
                             //here (loadThread again, checked boxes may not update otherwise)
 
-				    $ajax({
+				    $.ajax({
 					    type: 'POST',
 					    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/' + answerId,
 					    beforeSend: function (xhr) {
@@ -473,7 +503,7 @@ q<!DOCTYPE html>
                             //the current thread to the server. Clear the answer, 
                             //reload via "loadThread".
 
-				    $ajax({
+				    $.ajax({
 					    type: 'POST',
 					    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/',
 					    beforeSend: function (xhr) {
@@ -493,31 +523,30 @@ q<!DOCTYPE html>
 				    });
 			    },
 
-                            createThread: function() {
-                            //Take the data from threadEditor and post it to the server,
-                            //then go back to the start screen and reload the threads
+			    createThread: function() {
+				    //Take the data from threadEditor and post it to the server,
+				    //then go back to the start screen and reload the threads
 
-				    $ajax({
+				    $.ajax({
 					    type: 'POST',
 					    url: 'http://localhost:8080/threads',
 					    beforeSend: function (xhr) {
 						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password));
 					    },
 					    data: {
-						    title: this.threadEditor.title;
-							   body: this.threadEditor.body;
+						    title: this.threadEditor.title,
+						    body: this.threadEditor.body,
 					    },
 				    })
-					    .done(function(){
-						    this.threadEditor.isVisible = false;
-						    this.threadView.isVisible = false;
-						    this.loadThreadPreviews();
-					    })
-					    .failr({function(jqXHR, Exception){
-						    if (jqXHR.status == 0){
+				    .done(function(){
+					    this.threadEditor.isVisible = false;
+					    this.threadView.isVisible = false;
+					    this.loadThreadPreviews();
+				    })
+				    .fail(function(jqXHR, Exception){
+					    if (jqXHR.status == 0){
 
-						    }
-					    });
+					    }
 				    });
 			    }
 
