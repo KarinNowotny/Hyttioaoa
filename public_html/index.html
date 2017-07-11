@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+q<!DOCTYPE html>
 <!--
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
                     Version 2, December 2004
@@ -271,7 +271,8 @@
                             password: "",
                             loggedIn: false,
                             threadPreview: {
-                            filterId:0,
+                            isVisible: false,
+                                    filterId:0,
                                     currentPage:1, //Does not start with 0!
                                     threadsPerPage: 20, //Doesn't have to be changed anywhere
                                     totalThreadCount: 1, //Update this...
@@ -287,8 +288,8 @@
                                     }
                             },
                             threadView: {
-                            threadId = 1, //?
-                                    isVisible: false,
+                            //threadId: 1, //?
+                            isVisible: false,
                                     title: "Am I preganart?",
                                     date: Date.now(),
                                     author: "MandyGirlXoxo",
@@ -325,16 +326,17 @@
                     //Sign in user with variables "this.username" and
                     //"this.password" and set "loggedIn" to true.
                     $.ajax({
-                    url: '/users',
+                    url: 'http://localhost:8080/users',
                             type: 'POST',
-                            dataType: 'json',
+                            dataType: 'jsonp',
                             data: {
-                            username: this.username,
-                                    password: this.password,
-                            },
+                                username: this.username,
+                                    password: this.password
+                            }
+                            })
                             .done(function(){
                             this.loggedIn = true;
-                            }),
+                            })
                             .fail(function(jqXHR, Exception) {
                             if (jqXHR.status == 404){
                             this.errorMessage.title = 'Error during registration.';
@@ -349,20 +351,21 @@
                             }
                             }
                             }),
-                    });
-                    };
+                    
+                    },
+                    
                     logOut: function() {
                     this.username = "";
                     this.password = "";
                     this.loggedIn = false;
-                    };
+                    },
                     loadThreadPreviews: function() {
                     ////Load the thread previews from the server, show the
                     //thread preview and hide the single thread view and
                     //the thread editor.
                     //this.threadPreview.isVisible = true;
                     $.ajax({
-                    url: "/threads",
+                    url: 'http://localhost:8080/threads',
                             type: 'GET',
                             dataType: 'json',
                             beforeSend: function (xhr) {
@@ -380,19 +383,19 @@
                             this.errorMessage.title = 'Uncaught error.';
                             this.errorMessage.body = jqXHR.responseText;
                             }),
-                            });
-                    };
+                            })
+                    }; }
                     loadThread: function(threadId) {
                     //Load the thread with the specified id, hide threads
                     //preview and editor, clear user answer field, 
                     //show thread view.
                     $.ajax({
                     type: 'GET',
-                            url: '/threads/' + threadId,
+                            url: 'http://localhost:8080/threads/' + threadId,
                             //beforeSend: function (xhr) {
                             //xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password));
                             data: {
-                            threadId = this.threadId;
+                            threadId = this.threadId
                             },
                             dataType: 'json',
                     })
@@ -423,7 +426,7 @@
                             //here (loadThread again, checked boxes may not update otherwise)
                             $ajax({
                             type: 'POST',
-                                    url: '/threads/' + this.threadView.threadId + '/answers/' + answerId,
+                                    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/' + answerId,
                                     beforeSend: function (xhr) {
                                     xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
                                     },
@@ -460,7 +463,7 @@
                             //reload via "loadThread".
                             $ajax({
                             type: 'POST',
-                                    url: '/threads/' + this.threadView.threadId + '/answers/',
+                                    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/',
                                     beforeSend: function (xhr) {
                                     xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
                                     },
@@ -480,9 +483,9 @@
                             createThread: function() {
                             //Take the data from threadEditor and post it to the server,
                             //then go back to the start screen and reload the threads
-                            var request = $ajax({
+                            $ajax({
                             type: 'POST',
-                                    url: '/threads',
+                                    url: 'http://localhost:8080/threads',
                                     beforeSend: function (xhr) {
                                     xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password));
                                     },
@@ -502,8 +505,8 @@
                                     }}
                             });
                             }
-                    }
-                    }}});
+
+                    }});
         </script>
     </body>
 </html>
