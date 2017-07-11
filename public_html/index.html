@@ -263,10 +263,10 @@ q<!DOCTYPE html>
                     //errorMessage: undefined,//Will reset to undefined if dialog is closed by user
                     //Just assign an object in the following structure to this
                     //variable to show an error dialog.
-                    errorMessage: {
-                    title: "Fuck, an error!",
-                            body: "Well, shit. Idk what happened. Better press OK.",
-                    },
+			    errorMessage: {
+				    title: "Fuck, an error!",
+				    body: "Well, shit. Idk what happened. Better press OK.",
+			    },
                             username: "",
                             password: "",
                             loggedIn: false,
@@ -325,188 +325,203 @@ q<!DOCTYPE html>
                     signIn: function() {
                     //Sign in user with variables "this.username" and
                     //"this.password" and set "loggedIn" to true.
-                    $.ajax({
-                    url: 'http://localhost:8080/users',
-                            type: 'POST',
-                            dataType: 'jsonp',
-                            data: {
-                                username: this.username,
-                                    password: this.password
-                            }
-                            })
-                            .done(function(){
-                            this.loggedIn = true;
-                            })
-                            .fail(function(jqXHR, Exception) {
-                            if (jqXHR.status == 404){
-                            this.errorMessage.title = 'Error during registration.';
-                            this.errorMessage.body = 'Username already exists.';
-                            } else {
-                            if (jqXHR.status == 400){
-                            this.errorMessage.title = 'Invalid request body.';
-                            this.errorMessage.body = 'The server cannot handle this request.';
-                            } else {
-                            this.errorMessage.title = 'Uncaught error.';
-                            this.errorMessage.body = jqXHR.responseText;
-                            }
-                            }
-                            }),
-                    
-                    },
-                    
+
+			    $.ajax({
+				    url: 'http://localhost:8080/users',
+				    type: 'POST',
+				    dataType: 'jsonp',
+				    data: {
+					    username: this.username,
+					    password: this.password
+				    }
+			    })
+			    .done(function(){
+				    this.loggedIn = true;
+			    })
+			    .fail(function(jqXHR, Exception) {
+				    if (jqXHR.status == 404){
+					    this.errorMessage.title = 'Error during registration.';
+					    this.errorMessage.body = 'Username already exists.';
+				    } else {
+					    if (jqXHR.status == 400){
+						    this.errorMessage.title = 'Invalid request body.';
+						    this.errorMessage.body = 'The server cannot handle this request.';
+					    } else {
+						    this.errorMessage.title = 'Uncaught error.';
+						    this.errorMessage.body = jqXHR.responseText;
+					    }
+				    }
+			    });
+
+		    },
+
                     logOut: function() {
-                    this.username = "";
-                    this.password = "";
-                    this.loggedIn = false;
+			    this.username = "";
+			    this.password = "";
+			    this.loggedIn = false;
                     },
+
                     loadThreadPreviews: function() {
                     ////Load the thread previews from the server, show the
                     //thread preview and hide the single thread view and
                     //the thread editor.
                     //this.threadPreview.isVisible = true;
-                    $.ajax({
-                    url: 'http://localhost:8080/threads',
-                            type: 'GET',
-                            dataType: 'json',
-                            beforeSend: function (xhr) {
-                            xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))},
-                            .done(function(json) {
-                            $('#threadPreview').assign(json);
-                            this.threadEditor.isVisible = false;
-                            this.threadView.isVisible = false;
-                            }),
-                            .fail(function(jqXHR, Exception){
-                            if (jqXHR.status == 401) {
-                            this.errorMessage.title = 'Invalid Authentication.';
-                            this.errorMessage.body = 'You have no permission for this action.';
-                            } else {
-                            this.errorMessage.title = 'Uncaught error.';
-                            this.errorMessage.body = jqXHR.responseText;
-                            }),
-                            })
-                    }; }
+
+
+			    $.ajax({
+				    url: 'http://localhost:8080/threads',
+				    type: 'GET',
+				    dataType: 'json',
+				    beforeSend: function (xhr) {
+					    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
+				    }
+				    })
+				    .done(function(json) {
+					    $('#threadPreview').assign(json);
+					    this.threadEditor.isVisible = false;
+					    this.threadView.isVisible = false;
+				    })
+				    .fail(function(jqXHR, Exception){
+					    if (jqXHR.status == 401) {
+						    this.errorMessage.title = 'Invalid Authentication.';
+						    this.errorMessage.body = 'You have no permission for this action.';
+					    } else {
+						    this.errorMessage.title = 'Uncaught error.';
+						    this.errorMessage.body = jqXHR.responseText;
+					    }
+				    })
+			 },
+
                     loadThread: function(threadId) {
                     //Load the thread with the specified id, hide threads
                     //preview and editor, clear user answer field, 
                     //show thread view.
-                    $.ajax({
-                    type: 'GET',
-                            url: 'http://localhost:8080/threads/' + threadId,
-                            //beforeSend: function (xhr) {
-                            //xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password));
-                            data: {
-                            threadId = this.threadId
-                            },
-                            dataType: 'json',
-                    })
-                            .done(function(data) {
-                            $('#threadView').assign(data); // assign oder append?       
-                            this.threadEditor.isVisible = false;
-                            this.threadView.isVisible = true;
-                            }),
-                            .fail(function(jqXHR, Exception){
-                            if (jqXHR.status == 401){
-                            this.errorMessage.title = 'Invalid Authentication.';
-                            this.errorMessage.body = 'You have no permission for this action.';
-                            } else { if (jqXHR.status == 404){
-                            this.errorMessage.title = 'Invalid thread id.';
-                            this.errorMessage.body = 'The thread you are trying to load does not exist.';
-                            } else {
-                            this.errorMessage.title = 'Uncaught error.';
-                            this.errorMessage.body = jqXHR.responseText;
-                            }
 
-                            }
-                            }),
+			    $.ajax({
+				    type: 'GET',
+				    url: 'http://localhost:8080/threads/' + threadId,
+				    //beforeSend: function (xhr) {
+				    //xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password));
+				    data: {
+					    threadId : this.threadId
+				    },
+				    dataType: 'json',
+			    })
+			    .done(function(data) {
+				    $('#threadView').assign(data); // assign oder append?       
+				    this.threadEditor.isVisible = false;
+				    this.threadView.isVisible = true;
+			    })
+			    .fail(function(jqXHR, Exception){
+				    if (jqXHR.status == 401){
+					    this.errorMessage.title = 'Invalid Authentication.';
+					    this.errorMessage.body = 'You have no permission for this action.';
+				    } else { if (jqXHR.status == 404){
+					    this.errorMessage.title = 'Invalid thread id.';
+					    this.errorMessage.body = 'The thread you are trying to load does not exist.';
+				    } else {
+					    this.errorMessage.title = 'Uncaught error.';
+					    this.errorMessage.body = jqXHR.responseText;
+				    }
+
+				    }
+			    });
                             // thread preview unsichtbar machen?
 
                     },
                             changeAnswerState: function(answerId, isAccepted) {
                             //Mark answer as accepted on the server and update value
                             //here (loadThread again, checked boxes may not update otherwise)
-                            $ajax({
-                            type: 'POST',
-                                    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/' + answerId,
-                                    beforeSend: function (xhr) {
-                                    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
-                                    },
-                                    data: {
-                                    isAccepted: this.isAccepted
-                                    },
-                                    .done(function(){
-                                    this.threadView.answers[answerId].isAccepted = isAccepted;
-                                    this.loadThread(this.threadView.threadId);
-                                    }),
-                                    .fail(function(jqXHR, Exception){
-                                    if (jqXHR.status == 404){
-                                    this.errorMessage.title = 'Invalid thread id.';
-                                    this.errorMessage.body = 'The thread you are trying to load does not exist.';
-                                    } else {
-                                    if (jqXHR.status == 401){
-                                    this.errorMessage.title = 'Invalid Authentication.';
-                                    this.errorMessage.body = 'You have no permission for this action.';
-                                    } else {
-                                    if (jqXHR.status == 400){
-                                    this.errorMessage.title = 'Invalid request body.';
-                                    this.errorMessage.body = 'The server cannot handle this request.';
-                                    } else {
-                                    this.errorMessage.title = 'Uncaught error.';
-                                    this.errorMessage.body = jqXHR.responseText;
-                                    }
-                                    }
-                                    }
-                                    }),
-                            }); },
+
+				    $ajax({
+					    type: 'POST',
+					    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/' + answerId,
+					    beforeSend: function (xhr) {
+						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
+					    },
+					    data: {
+						    isAccepted: this.isAccepted
+					    },
+				    })
+					    .done(function(){
+						    this.threadView.answers[answerId].isAccepted = isAccepted;
+						    this.loadThread(this.threadView.threadId);
+					    })
+					    .fail(function(jqXHR, Exception){
+						    if (jqXHR.status == 404){
+							    this.errorMessage.title = 'Invalid thread id.';
+							    this.errorMessage.body = 'The thread you are trying to load does not exist.';
+						    } else {
+							    if (jqXHR.status == 401){
+								    this.errorMessage.title = 'Invalid Authentication.';
+								    this.errorMessage.body = 'You have no permission for this action.';
+							    } else {
+								    if (jqXHR.status == 400){
+									    this.errorMessage.title = 'Invalid request body.';
+									    this.errorMessage.body = 'The server cannot handle this request.';
+								    } else {
+									    this.errorMessage.title = 'Uncaught error.';
+									    this.errorMessage.body = jqXHR.responseText;
+								    }
+							    }
+						    }
+					    });
+				    },
+
                             postAnswer: function() {
                             //Push the answer from this.threadView.userAnswerText to 
                             //the current thread to the server. Clear the answer, 
                             //reload via "loadThread".
-                            $ajax({
-                            type: 'POST',
-                                    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/',
-                                    beforeSend: function (xhr) {
-                                    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
-                                    },
-                                    data: {
-                                    threadId: this.threadView.Id,
-                                    },
-                                    .done(function(){
-                                    this.userAnswerText = "";
-                                    this.threadView.userAnswerText = "";
-                                    this.loadThread(this.threadView.threadId);
-                                    }),
-                                    .fail(function(){
 
-                                    })
-                            });
-                            },
+				    $ajax({
+					    type: 'POST',
+					    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/',
+					    beforeSend: function (xhr) {
+						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
+					    },
+					    data: {
+						    threadId: this.threadView.Id,
+					    },
+				    })
+				    .done(function(){
+					    this.userAnswerText = "";
+					    this.threadView.userAnswerText = "";
+					    this.loadThread(this.threadView.threadId);
+				    })
+				    .fail(function(){
+
+				    });
+			    },
+
                             createThread: function() {
                             //Take the data from threadEditor and post it to the server,
                             //then go back to the start screen and reload the threads
-                            $ajax({
-                            type: 'POST',
-                                    url: 'http://localhost:8080/threads',
-                                    beforeSend: function (xhr) {
-                                    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password));
-                                    },
-                                    data: {
-                                    title: this.threadEditor.title;
-                                    body: this.threadEditor.body;
-                                    },
-                                    .done{function(){
-                                    this.threadEditor.isVisible = false;
-                                    this.threadView.isVisible = false;
-                                    this.loadThreadPreviews();
-                                    }},
-                                    .fail{function(jqXHR, Exception){
-                                    if (jqXHR.status == ){
 
-                                    }
-                                    }}
-                            });
-                            }
+				    $ajax({
+					    type: 'POST',
+					    url: 'http://localhost:8080/threads',
+					    beforeSend: function (xhr) {
+						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password));
+					    },
+					    data: {
+						    title: this.threadEditor.title;
+							   body: this.threadEditor.body;
+					    },
+				    })
+					    .done(function(){
+						    this.threadEditor.isVisible = false;
+						    this.threadView.isVisible = false;
+						    this.loadThreadPreviews();
+					    })
+					    .failr({function(jqXHR, Exception){
+						    if (jqXHR.status == 0){
 
-                    }});
+						    }
+					    });
+				    });
+			    }
+
+		    }});
         </script>
     </body>
 </html>
