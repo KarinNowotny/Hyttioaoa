@@ -1,4 +1,4 @@
-q<!DOCTYPE html>
+<!DOCTYPE html>
 <!--
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
                     Version 2, December 2004
@@ -149,6 +149,11 @@ q<!DOCTYPE html>
                                 {{tp.acceptedResponseCount > 0 ?"Unsolved":"Solved"}}
                             </sub>
                             <p>{{tp.body.substring(0,110).trim() + (tp.body.length>110?"...":"")}}</p>
+                            <a class="btn btn-danger" href="#" role="button"
+                               v-on:click="removeThread(tpid)"
+                               v-if="tp.author == username">
+                                Remove thread
+                            </a>
                             <a class="btn btn-default" href="#" role="button"
                                v-on:click="loadThread(tpid)">
                                 Show thread &raquo;
@@ -193,7 +198,7 @@ q<!DOCTYPE html>
                 <div class="panel panel-default" v-for="(a, aid) in threadView.answers">
                     <div class="panel-heading">
                         <span>"{{a.author}}" wrote:</span>
-                        <span style="float:right">
+                        <div style="float:right">
                             <div v-if="username==threadView.author">
                                 Mark as accepted answer:
                                 <a href="#" v-if="!a.isAccepted" v-on:click="changeAnswerState(aid, true)">
@@ -208,7 +213,10 @@ q<!DOCTYPE html>
                                 <i v-if="!a.isAccepted" class="glyphicon glyphicon-unchecked"></i>
                                 <i v-if="a.isAccepted" class="glyphicon glyphicon-checked"></i>
                             </div>
-                        </span>
+                        </div>
+                        <div v-if="username==a.author" style="float:right; padding-right:20px">
+                            <a href="#" v-on:click="removeAnswer(aid)">Remove answer</a>
+                        </div>
                     </div>
                     <div class="panel-body">
                         {{a.body}}
@@ -260,13 +268,13 @@ q<!DOCTYPE html>
             var app = new Vue({
             el: '#main',
                     data: {
-                    //errorMessage: undefined,//Will reset to undefined if dialog is closed by user
+                    errorMessage: undefined,//Will reset to undefined if dialog is closed by user
                     //Just assign an object in the following structure to this
                     //variable to show an error dialog.
-			    errorMessage: {
+			    /*errorMessage: {
 				    title: "Fuck, an error!",
 				    body: "Well, shit. Idk what happened. Better press OK.",
-			    },
+			    },*/
                             username: "",
                             password: "",
                             loggedIn: false,
@@ -421,6 +429,10 @@ q<!DOCTYPE html>
 				    }
 			    })
 		    },
+                    
+                    removeThread: function(threadId) {
+                        //Remove the thread with the specified id.
+                    },
 
 		    loadThread: function(threadId) {
 			    //Load the thread with the specified id, hide threads
@@ -435,7 +447,7 @@ q<!DOCTYPE html>
 				    data: {
 					    threadId : this.threadId
 				    },
-				    dataType: 'json',
+				    dataType: 'json'
 			    })
 			    .done(function(data) {
 				    $('#threadView').assign(data); // assign oder append?       
@@ -444,20 +456,20 @@ q<!DOCTYPE html>
 			    })
 			    .fail(function(jqXHR, Exception){
 				    if (jqXHR.status == 401){
-					    this.errorMessage.title = 'Invalid Authentication.';
-					    this.errorMessage.body = 'You have no permission for this action.';
-				    } else { if (jqXHR.status == 404){
+                                        //Do it like this
+                                        this.errorMessage = {
+                                            title: 'Invalid Authentication.',
+                                            body: 'You have no permission for this action.'
+                                        };
+				    } else if (jqXHR.status == 404){
+                                            //Not like this.
 					    this.errorMessage.title = 'Invalid thread id.';
 					    this.errorMessage.body = 'The thread you are trying to load does not exist.';
 				    } else {
 					    this.errorMessage.title = 'Uncaught error.';
 					    this.errorMessage.body = jqXHR.responseText;
 				    }
-
-				    }
-			    });
-			    // thread preview unsichtbar machen?
-
+				    });
 			    },
 			    changeAnswerState: function(answerId, isAccepted) {
 				    //Mark answer as accepted on the server and update value
@@ -522,6 +534,10 @@ q<!DOCTYPE html>
 
 				    });
 			    },
+                            
+                            removeAnswer: function(answerId) {
+                                //remove answer with specified ID
+                            },
 
 			    createThread: function() {
 				    //Take the data from threadEditor and post it to the server,
