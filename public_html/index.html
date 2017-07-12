@@ -296,8 +296,8 @@
                                     }
                             },
                             threadView: {
-                            //threadId: 1, //?
                             isVisible: false,
+                            threadId: 1,
                                     title: "Am I preganart?",
                                     date: Date.now(),
                                     author: "MandyGirlXoxo",
@@ -333,26 +333,32 @@
 				    type: 'GET',
 				    dataType: 'jsonp',
 				    beforeSend: function (xhr) {
-					    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
+					    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password));
 				    }
 			    })
 			    .done(function(){
-				    this.loggedIn = true;
+				    app.loggedIn = true;
 			    })
 			    .fail(function(jqXHR, Exception) {
-				    if (jqXHR.status == 404){
-					    this.errorMessage.title = 'Error during registration.';
-					    this.errorMessage.body = 'Username already exists.';
+				    if (jqXHR.status === 404){
+                                        app.errorMessage = {
+                                            title: 'Login not successful.',
+                                            body: 'Username or password wrong.'
+                                        };
 				    } else {
-					    if(jqXHR.status == 200) {
-						    this.loggedIn = true;
+					    if(jqXHR.status === 200) {
+						    app.loggedIn = true;
 					    }
-					    else if (jqXHR.status == 400){
-						    this.errorMessage.title = 'Invalid request body.';
-						    this.errorMessage.body = 'The server cannot handle this request.';
+					    else if (jqXHR.status === 400){
+                                                app.errorMessage = {
+                                                    title: 'Invalid request body.',
+                                                    body: 'The server cannot handle this request.'
+                                                };
 					    } else {
-						    this.errorMessage.title = 'Uncaught error.';
-						    this.errorMessage.body = jqXHR.responseText;
+                                                app.errorMessage = {
+                                                    title: 'Uncaught error.',
+                                                    body: jqXHR.responseText
+                                                };
 					    }
 				    }
 			    });
@@ -369,24 +375,30 @@
 				    type: 'POST',
 				    dataType: 'jsonp',
 				    data: {
-					    username: this.username,
-					    password: this.password
+					    username: app.username,
+					    password: app.password
 				    }
 			    })
 			    .done(function(){
-				    this.loggedIn = true;
+				    app.loggedIn = true;
 			    })
 			    .fail(function(jqXHR, Exception) {
-				    if (jqXHR.status == 404){
-					    this.errorMessage.title = 'Error during registration.';
-					    this.errorMessage.body = 'Username already exists.';
+				    if (jqXHR.status === 404){
+					    app.errorMessage = {
+                                            title: 'Error during registration.',
+                                            body: 'Username already exists.'
+                                        };
 				    } else {
-					    if (jqXHR.status == 400){
-						    this.errorMessage.title = 'Invalid request body.';
-						    this.errorMessage.body = 'The server cannot handle this request.';
+					    if (jqXHR.status === 400){
+						    app.errorMessage = {
+                                                    title: 'Invalid request body.',
+                                                    body: 'The server cannot handle this request.'
+                                                    };
 					    } else {
-						    this.errorMessage.title = 'Uncaught error.';
-						    this.errorMessage.body = jqXHR.responseText;
+						    app.errorMessage = {
+                                                    title: 'Uncaught error.',
+                                                    body: jqXHR.responseText
+                                                };
 					    }
 				    }
 			    });
@@ -394,9 +406,9 @@
 		    },
 
 		    logOut: function() {
-			    this.username = "";
-			    this.password = "";
-			    this.loggedIn = false;
+			    app.username = "";
+			    app.password = "";
+			    app.loggedIn = false;
 		    },
 
 		    loadThreadPreviews: function() {
@@ -409,25 +421,29 @@
 			    $.ajax({
 				    url: 'http://localhost:8080/threads',
 				    type: 'GET',
-				    dataType: 'json',
+				    dataType: 'jsonp',
 				    beforeSend: function (xhr) {
-					    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
+					    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password));
 				    }
 			    })
 			    .done(function(json) {
 				    $('#threadPreview').assign(json);
-				    this.threadEditor.isVisible = false;
-				    this.threadView.isVisible = false;
+				    app.threadEditor.isVisible = false;
+				    app.threadView.isVisible = false;
 			    })
 			    .fail(function(jqXHR, Exception){
-				    if (jqXHR.status == 401) {
-					    this.errorMessage.title = 'Invalid Authentication.';
-					    this.errorMessage.body = 'You have no permission for this action.';
+				    if (jqXHR.status === 401) {
+                                            app.errorMessage = {
+                                                    title: 'Invalid Authentication.',
+                                                    body: 'You have no permission for this action.'
+                                                    };
 				    } else {
-					    this.errorMessage.title = 'Uncaught error.';
-					    this.errorMessage.body = jqXHR.responseText;
+					    app.errorMessage = {
+                                                    title: 'Uncaught error.',
+                                                    body: jqXHR.responseText
+                                                };
 				    }
-			    })
+			    });
 		    },
                     
                     removeThread: function(threadId) {
@@ -447,27 +463,29 @@
 				    data: {
 					    threadId : this.threadId
 				    },
-				    dataType: 'json'
+				    dataType: 'jsonp'
 			    })
 			    .done(function(data) {
 				    $('#threadView').assign(data); // assign oder append?       
-				    this.threadEditor.isVisible = false;
-				    this.threadView.isVisible = true;
+				    app.threadEditor.isVisible = false;
+				    app.threadView.isVisible = true;
 			    })
 			    .fail(function(jqXHR, Exception){
-				    if (jqXHR.status == 401){
-                                        //Do it like this
-                                        this.errorMessage = {
+				    if (jqXHR.status === 401){
+                                        app.errorMessage = {
                                             title: 'Invalid Authentication.',
                                             body: 'You have no permission for this action.'
                                         };
 				    } else if (jqXHR.status == 404){
-                                            //Not like this.
-					    this.errorMessage.title = 'Invalid thread id.';
-					    this.errorMessage.body = 'The thread you are trying to load does not exist.';
+                                            app.errorMessage = {
+                                                title: 'Invalid thread id.',
+                                                body: 'The thread you are trying to load does not exist.'
+                                            };
 				    } else {
-					    this.errorMessage.title = 'Uncaught error.';
-					    this.errorMessage.body = jqXHR.responseText;
+					    app.errorMessage = {
+                                                title: 'Uncaught error.',
+                                                body: jqXHR.responseText
+                                            };
 				    }
 				    });
 			    },
@@ -477,28 +495,28 @@
 
 				    $.ajax({
 					    type: 'POST',
-					    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/' + answerId,
+					    url: 'http://localhost:8080/threads/' + app.threadView.threadId + '/answers/' + answerId,
 					    beforeSend: function (xhr) {
-						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
+						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password))
 					    },
 					    data: {
-						    isAccepted: this.isAccepted
+						    isAccepted: isAccepted
 					    },
 				    })
 				    .done(function(){
-					    this.threadView.answers[answerId].isAccepted = isAccepted;
-					    this.loadThread(this.threadView.threadId);
+					    app.threadView.answers[answerId].isAccepted = isAccepted;
+					    app.loadThread(app.threadView.threadId);
 				    })
 				    .fail(function(jqXHR, Exception){
-					    if (jqXHR.status == 404){
+					    if (jqXHR.status === 404){
 						    this.errorMessage.title = 'Invalid thread id.';
 						    this.errorMessage.body = 'The thread you are trying to load does not exist.';
 					    } else {
-						    if (jqXHR.status == 401){
+						    if (jqXHR.status === 401){
 							    this.errorMessage.title = 'Invalid Authentication.';
 							    this.errorMessage.body = 'You have no permission for this action.';
 						    } else {
-							    if (jqXHR.status == 400){
+							    if (jqXHR.status === 400){
 								    this.errorMessage.title = 'Invalid request body.';
 								    this.errorMessage.body = 'The server cannot handle this request.';
 							    } else {
@@ -517,18 +535,18 @@
 
 				    $.ajax({
 					    type: 'POST',
-					    url: 'http://localhost:8080/threads/' + this.threadView.threadId + '/answers/',
+					    url: 'http://localhost:8080/threads/' + app.threadView.threadId + '/answers/',
 					    beforeSend: function (xhr) {
-						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password))
+						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password))
 					    },
 					    data: {
-						    threadId: this.threadView.Id,
+						    threadId: app.threadView.Id,
 					    },
 				    })
 				    .done(function(){
-					    this.userAnswerText = "";
-					    this.threadView.userAnswerText = "";
-					    this.loadThread(this.threadView.threadId);
+					    app.userAnswerText = "";
+					    app.threadView.userAnswerText = "";
+					    app.loadThread(app.threadView.threadId);
 				    })
 				    .fail(function(){
 
@@ -547,17 +565,17 @@
 					    type: 'POST',
 					    url: 'http://localhost:8080/threads',
 					    beforeSend: function (xhr) {
-						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password));
+						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password));
 					    },
 					    data: {
-						    title: this.threadEditor.title,
-						    body: this.threadEditor.body,
+						    title: app.threadEditor.title,
+						    body: app.threadEditor.body,
 					    },
 				    })
 				    .done(function(){
-					    this.threadEditor.isVisible = false;
-					    this.threadView.isVisible = false;
-					    this.loadThreadPreviews();
+					    app.threadEditor.isVisible = false;
+					    app.threadView.isVisible = false;
+					    app.loadThreadPreviews();
 				    })
 				    .fail(function(jqXHR, Exception){
 					    if (jqXHR.status == 0){
