@@ -561,15 +561,35 @@
 				    //Take the data from threadEditor and post it to the server,
 				    //then go back to the start screen and reload the threads
 
+
+				    var xhttp = new XMLHttpRequest();
+				    xhttp.onreadystatechange = function() {
+
+					    if (this.status == 200) {
+						    //...
+					    }
+				    };
+				    xhttp.open("POST", "http://localhost:8080/threads", true);
+				    xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
+				    xhttp.setRequestHeader('Accept', 'application/json');
+				    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				    xhttp.send("title=" + app.threadEditor.title + "&body=" + "ffff");
+
+				    return
+
+
 				    $.ajax({
 					    type: 'POST',
 					    url: 'http://localhost:8080/threads',
+					    dataType: "json",
 					    beforeSend: function (xhr) {
 						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password));
+						    xhr.setRequestHeader('Accept', 'application/json');
+						    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 					    },
 					    data: {
 						    title: app.threadEditor.title,
-						    body: app.threadEditor.body,
+						    body: "kkk", // app.threadEditor.body, //error here app.threadEditor.body doesnt exist?
 					    },
 				    })
 				    .done(function(){
@@ -578,6 +598,7 @@
 					    app.loadThreadPreviews();
 				    })
 				    .fail(function(jqXHR, Exception){
+					    app.errorMessage.title = "login failed"; //erro here, app.errormessage.title doenst exist?
 					    if (jqXHR.status == 0){
 
 					    }
