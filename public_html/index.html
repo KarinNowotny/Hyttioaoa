@@ -562,64 +562,40 @@
 				    //then go back to the start screen and reload the threads
 
 
-				    var xhttp = new XMLHttpRequest();
-				    xhttp.onreadystatechange = function() {
-
-					    if (this.status == 200) { // 200 oder 201?
-						   ('#threadEditor.isVisible') = false;
-                                                   ('#threadView.isVisible') = false;
-                                                    loadThreadPreviews();
-					    } else {
-                                                if (this.status == 401){
-                                                    ('#errorMessage').assign("{
-                                                        title: 'Invalid Authentication.',
-                                                        body: 'You have no permission for this action.'}");
-                                                } else {
-                                                    if (this.status == 400){
-                                                        ('#errorMessage').assign("{
-                                                            title: 'Invalid request body.',
-                                                            body: 'The server cannot handle this request.'}");
-                                                    } else {
-                                                        ('#errorMessage').assign("{
-                                                            title: 'Uncaught error.',
-                                                            body: jqXHR.responseText}");
-                                                    }
-                                                }
-				    };
-				    xhttp.open("POST", "http://localhost:8080/threads", true);
-				    xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
-				    xhttp.setRequestHeader('Accept', 'application/json');
-				    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-				    xhttp.send("title=" + ('#threadEditor.title') + "&body=" + ('#threadEditor.body'));
-
-				    return
+		createThread: function() {
+		//Take the data from threadEditor and post it to the server,
+		//then go back to the start screen and reload the threads
 
 
-				    $.ajax({
-					    type: 'POST',
-					    url: 'http://localhost:8080/threads',
-					    dataType: "json",
-					    beforeSend: function (xhr) {
-						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password));
-						    xhr.setRequestHeader('Accept', 'application/json');
-						    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-					    },
-					    data: {
-						    title: app.threadEditor.title,
-						    body: "kkk", // app.threadEditor.body, //error here app.threadEditor.body doesnt exist?
-					    },
-				    })
-				    .done(function(){
-					    app.threadEditor.isVisible = false;
-					    app.threadView.isVisible = false;
-					    app.loadThreadPreviews();
-				    })
-				    .fail(function(jqXHR, Exception){
-					    app.errorMessage.title = "login failed"; //erro here, app.errormessage.title doenst exist?
-					    if (jqXHR.status == 0){
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+                    if (this.status == 200) { // 200 oder 201?
+                        app.threadEditor.isVisible = false;
+                        app.threadView.isVisible = false;
+                        loadThreadPreviews();
+                    } else {
+                        if (this.status == 401){
+                            app.errorMessage = {
+                                        title: 'Invalid Authentication.',
+                                        body: 'You have no permission for this action.'
+                            };
+                        } else {
+                            if (this.status == 400){
+                                app.errorMessage = {
+                                        title: 'Invalid request body.',
+                                        body: 'The server cannot handle this request.'
+                                };
 
-					    }
-				    });
+                            } else {
+                                app.errorMessage = {
+                                        title: 'Uncaught error.',
+                                        body: jqXHR.responseText
+                                };
+                            }
+                        }
+                     }
+                    };
+
 			    }
 
 		    }});
