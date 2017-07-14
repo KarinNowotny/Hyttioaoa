@@ -557,11 +557,6 @@
                                 //remove answer with specified ID
                             },
 
-			    createThread: function() {
-				    //Take the data from threadEditor and post it to the server,
-				    //then go back to the start screen and reload the threads
-
-
 		createThread: function() {
 		//Take the data from threadEditor and post it to the server,
 		//then go back to the start screen and reload the threads
@@ -595,6 +590,11 @@
                         }
                      }
                     };
+                    xhttp.open("POST", "http://localhost:8080/threads", true);
+                    xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
+                    xhttp.setRequestHeader('Accept', 'application/json');
+                    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                    xhttp.send("title=" + ('#threadEditor.title') + "&body=" + ('#threadEditor.body'));
 
 			    }
 
