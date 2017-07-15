@@ -190,16 +190,16 @@
             </div> 
 
             <div class="container" v-if="threadView.isVisible">
-                <h1>"{{threadView.title}}"<small> by {{threadView.author}}</small></h1>
-                <sub>Date: {{new Date(threadView.date).toLocaleString()}}</sub>
-                <p>{{threadView.body}}</p><br/>
+                <h1>"{{threadView.data.title}}"<small> by {{threadView.data.author}}</small></h1>
+                <sub>Date: {{new Date(threadView.data.date).toLocaleString()}}</sub>
+                <p>{{threadView.data.body}}</p><br/>
 
                 <h3>Answers:</h3><br/>
-                <div class="panel panel-default" v-for="(a, aid) in threadView.answers">
+                <div class="panel panel-default" v-for="(a, aid) in threadView.data.answers">
                     <div class="panel-heading">
                         <span>"{{a.author}}" wrote:</span>
                         <div style="float:right">
-                            <div v-if="username==threadView.author">
+                            <div v-if="username==threadView.data.author">
                                 Mark as accepted answer:
                                 <a href="#" v-if="!a.isAccepted" v-on:click="changeAnswerState(aid, true)">
                                     <i class="glyphicon glyphicon-unchecked"></i>
@@ -208,7 +208,7 @@
                                     <i class="glyphicon glyphicon-check"></i>
                                 </a>
                             </div>
-                            <div v-if="username!=threadView.author">
+                            <div v-if="username!=threadView.data.author">
                                 Accepted answer:
                                 <i v-if="!a.isAccepted" class="glyphicon glyphicon-unchecked"></i>
                                 <i v-if="a.isAccepted" class="glyphicon glyphicon-checked"></i>
@@ -297,25 +297,29 @@
                             },
                             threadView: {
                             isVisible: false,
-                            threadId: 1,
-                                    title: "Am I preganart?",
-                                    date: Date.now(),
-                                    author: "MandyGirlXoxo",
-                                    body: "Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls.",
-                                    answers: {
-                                    "3": {
-                                    author:"RandyBrandy8==D",
-                                            date: Date.now(),
-                                            body: "you r wut bitch u said ur on bird control fuk u !1!!eleven",
-                                            isAccepted: false
-                                    },
-                                            "19": {
-                                            author:"DrSanchez",
-                                                    date: Date.now(),
-                                                    body: "I make u cheap offer 4 abortion and give you discount for viagra then also!"
-                                            }
-                                    },
-                                    userAnswerText: ""//Contains the users answer text - only available if logged in
+                                    userAnswerText: "",//Contains the users answer text - only available if logged in
+                                    data: {
+                                        threadId: 1,
+                                        title: "Am I preganart?",
+                                        date: Date.now(),
+                                        author: "MandyGirlXoxo",
+                                        body: "Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls Me and my bf had sex last week now i hav no preiod am i pergnart help pls.",
+                                        answers: {
+                                        "3": {
+                                        author:"RandyBrandy8==D",
+                                                date: Date.now(),
+                                                body: "you r wut bitch u said ur on bird control fuk u !1!!eleven",
+                                                isAccepted: false
+                                        },
+                                        "19": {
+                                        author:"DrSanchez",
+                                                date: Date.now(),
+                                                body: "I make u cheap offer 4 abortion and give you discount for viagra then also!"
+                                        }
+                                    }
+                                   }
+                                   
+                                   
                             },
                             threadEditor: {
                             isVisible: false,
@@ -327,81 +331,73 @@
 		    //If problems occur, assign error object to this.errorMessage
 
 		    logIn: function() {
-
-			    $.ajax({
-				    url: 'http://localhost:8080/users/login',
-				    type: 'GET',
-				    dataType: 'jsonp',
-				    beforeSend: function (xhr) {
-					    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password));
-				    }
-			    })
-			    .done(function(){
-				    app.loggedIn = true;
-			    })
-			    .fail(function(jqXHR, Exception) {
-				    if (jqXHR.status === 404){
-                                        app.errorMessage = {
-                                            title: 'Login not successful.',
-                                            body: 'Username or password wrong.'
-                                        };
+                            var xhttp = new XMLHttpRequest();
+			    xhttp.onreadystatechange = function() {
+				    if (xhttp.readyState === XMLHttpRequest.DONE && (this.status == 200)) {
+                                            app.loggedIn = true;
 				    } else {
-					    if(jqXHR.status === 200) {
-						    app.loggedIn = true;
-					    }
-					    else if (jqXHR.status === 400){
-                                                app.errorMessage = {
-                                                    title: 'Invalid request body.',
-                                                    body: 'The server cannot handle this request.'
-                                                };
+					    if (this.status == 404){
+						    app.errorMessage = {
+                                                            title: 'Login not successful.',
+                                                            body: 'Username or password wrong.'
+                                        };
 					    } else {
-                                                app.errorMessage = {
-                                                    title: 'Uncaught error.',
-                                                    body: jqXHR.responseText
-                                                };
+						    if (this.status == 400){
+							    app.errorMessage = {
+								    title: 'Invalid request body.',
+								    body: 'The server cannot handle this request.'
+							    };
+
+						    } else {
+							    app.errorMessage = {
+								    title: 'Uncaught error.',
+								    body: 'An unknown error occured.'
+							    };
+						    }
 					    }
 				    }
-			    });
+			    };
 
-
+			    xhttp.open("GET", "/users", true);
+                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
+			    xhttp.send();
 		    },
 
 		    signIn: function() {
 			    //Sign in user with variables "this.username" and
 			    //"this.password" and set "loggedIn" to true.
-
-			    $.ajax({
-				    url: 'http://localhost:8080/users',
-				    type: 'POST',
-				    dataType: 'jsonp',
-				    data: {
-					    username: app.username,
-					    password: app.password
-				    }
-			    })
-			    .done(function(){
-				    app.loggedIn = true;
-			    })
-			    .fail(function(jqXHR, Exception) {
-				    if (jqXHR.status === 404){
+                            var xhttp = new XMLHttpRequest();
+                            xhttp.onreadystatechange = function() {
+                                    if (xhttp.readyState === XMLHttpRequest.DONE && (this.status == 201)) { 
+                                            app.loggedIn = true;
+                                    } else {
+                                            if (this.status == 404){
 					    app.errorMessage = {
                                             title: 'Error during registration.',
                                             body: 'Username already exists.'
                                         };
-				    } else {
-					    if (jqXHR.status === 400){
-						    app.errorMessage = {
-                                                    title: 'Invalid request body.',
-                                                    body: 'The server cannot handle this request.'
-                                                    };
-					    } else {
-						    app.errorMessage = {
-                                                    title: 'Uncaught error.',
-                                                    body: jqXHR.responseText
-                                                };
-					    }
-				    }
-			    });
+                                            } else {
+                                                    if (jqXHR.status === 400){
+                                                            app.errorMessage = {
+                                                            title: 'Invalid request body.',
+                                                            body: 'The server cannot handle this request.'
+                                                            };
+                                                    } else {
+                                                            app.errorMessage = {
+                                                                    title: 'Uncaught error.',
+                                                                    body: 'An unknown error occured.' 
+                                                            };
+                                                        }
+                                                    } 
+                                            }
+                                    }
+                            };
+
+                            xhttp.open("POST", "http://localhost:8080/users/", true);
+                            xhttp.setRequestHeader('Accept', 'application/json');
+                            xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                            xhttp.send("username=" + app.username + "&password=" + app.password);
+                            
 
 		    },
 
@@ -415,190 +411,307 @@
 			    ////Load the thread previews from the server, show the
 			    //thread preview and hide the single thread view and
 			    //the thread editor.
-			    //this.threadPreview.isVisible = true;
+			    var xhttp = new XMLHttpRequest();
+			    xhttp.onreadystatechange = function() {
+				    if (xhttp.readyState === XMLHttpRequest.DONE && (this.status == 200)) {
 
+					    app.threadPreview.data = JSON.parse(this.responseText);
+					    app.threadEditor.isVisible = false;
+					    app.threadView.isVisible = false;
 
-			    $.ajax({
-				    url: 'http://localhost:8080/threads',
-				    type: 'GET',
-				    dataType: 'jsonp',
-				    beforeSend: function (xhr) {
-					    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password));
-				    }
-			    })
-			    .done(function(json) {
-				    $('#threadPreview').assign(json);
-				    app.threadEditor.isVisible = false;
-				    app.threadView.isVisible = false;
-			    })
-			    .fail(function(jqXHR, Exception){
-				    if (jqXHR.status === 401) {
-                                            app.errorMessage = {
-                                                    title: 'Invalid Authentication.',
-                                                    body: 'You have no permission for this action.'
-                                                    };
 				    } else {
-					    app.errorMessage = {
-                                                    title: 'Uncaught error.',
-                                                    body: jqXHR.responseText
-                                                };
+					    if (this.status == 401){
+						    app.errorMessage = {
+							    title: 'Invalid Authentication.',
+							    body: 'You have no permission for this action.'
+						    };
+					    } else {
+						    if (this.status == 400){
+							    app.errorMessage = {
+								    title: 'Invalid request body.',
+								    body: 'The server cannot handle this request.'
+							    };
+
+						    } else {
+							    app.errorMessage = {
+								    title: 'Uncaught error.',
+								    body: 'An unknown error occured.'
+							    };
+						    }
+					    }
 				    }
-			    });
+			    };
+
+			    xhttp.open("GET", "/threads", true);
+			    xhttp.send();
 		    },
                     
                     removeThread: function(threadId) {
                         //Remove the thread with the specified id.
+                        var xhttp = new XMLHttpRequest();
+			    xhttp.onreadystatechange = function() {
+				    if (xhttp.readyState === XMLHttpRequest.DONE && (this.status == 205)) { 
+                                            app.threadView.isVisible = false;
+                                            app.loadThreadPreviews();
+                                            app.threadPreview.isVisible = true;
+				    } else {
+					    if (this.status == 401){
+						    app.errorMessage = {
+							    title: 'Invalid Authentication.',
+							    body: 'You have no permission for this action.'
+						    };
+					    } else {
+						    if (this.status == 404){
+							    app.errorMessage = {
+								    title: 'Invalid Thread Id.',
+								    body: 'The thread you are trying to access does not exist.'
+							    };
+
+						    } else {
+                                                        if (this.status == 403){
+                                                                app.errorMessage = {
+                                                                        title: 'Missing Permission.',
+                                                                        body: 'You have no permission to delete this thread.'
+                                                                };
+                                                            } else {
+                                                                    app.errorMessage = {
+                                                                            title: 'Uncaught error.',
+                                                                            body: 'An unknown error occured.'
+
+                                                            };
+                                                    }
+                                            }
+                                    }
+                            }
+                            };
+
+                            xhttp.open("DELETE", "/threads/" + threadId, true);
+                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
+                            xhttp.send();
                     },
 
 		    loadThread: function(threadId) {
-			    //Load the thread with the specified id, hide threads
-			    //preview and editor, clear user answer field, 
-			    //show thread view.
+			    ////Load the thread with the input thread id from the 
+                            //server, show the thread and hide the thread preview 
+                            //and the thread editor.
+                            var xhttp = new XMLHttpRequest();
+			    xhttp.onreadystatechange = function() {
+				    if (xhttp.readyState === XMLHttpRequest.DONE && (this.status == 200)) { 
 
-			    $.ajax({
-				    type: 'GET',
-				    url: 'http://localhost:8080/threads/' + threadId,
-				    //beforeSend: function (xhr) {
-				    //xhr.setRequestHeader ("Authorization", "Basic " + btoa(this.username + ":" + this.password));
-				    data: {
-					    threadId : this.threadId
-				    },
-				    dataType: 'jsonp'
-			    })
-			    .done(function(data) {
-				    $('#threadView').assign(data); // assign oder append?       
-				    app.threadEditor.isVisible = false;
-				    app.threadView.isVisible = true;
-			    })
-			    .fail(function(jqXHR, Exception){
-				    if (jqXHR.status === 401){
-                                        app.errorMessage = {
-                                            title: 'Invalid Authentication.',
-                                            body: 'You have no permission for this action.'
-                                        };
-				    } else if (jqXHR.status == 404){
-                                            app.errorMessage = {
-                                                title: 'Invalid thread id.',
-                                                body: 'The thread you are trying to load does not exist.'
-                                            };
+					    app.threadView.data = JSON.parse(this.responseText);
+					    app.threadPreview.isVisible = false;
+					    app.threadView.isVisible = true;
+
 				    } else {
-					    app.errorMessage = {
-                                                title: 'Uncaught error.',
-                                                body: jqXHR.responseText
-                                            };
-				    }
-				    });
-			    },
-			    changeAnswerState: function(answerId, isAccepted) {
-				    //Mark answer as accepted on the server and update value
-				    //here (loadThread again, checked boxes may not update otherwise)
-
-				    $.ajax({
-					    type: 'POST',
-					    url: 'http://localhost:8080/threads/' + app.threadView.threadId + '/answers/' + answerId,
-					    beforeSend: function (xhr) {
-						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password))
-					    },
-					    data: {
-						    isAccepted: isAccepted
-					    },
-				    })
-				    .done(function(){
-					    app.threadView.answers[answerId].isAccepted = isAccepted;
-					    app.loadThread(app.threadView.threadId);
-				    })
-				    .fail(function(jqXHR, Exception){
-					    if (jqXHR.status === 404){
-						    this.errorMessage.title = 'Invalid thread id.';
-						    this.errorMessage.body = 'The thread you are trying to load does not exist.';
+					    if (this.status == 401){
+						    app.errorMessage = {
+							    title: 'Invalid Authentication.',
+							    body: 'You have no permission for this action.'
+						    };
 					    } else {
-						    if (jqXHR.status === 401){
-							    this.errorMessage.title = 'Invalid Authentication.';
-							    this.errorMessage.body = 'You have no permission for this action.';
+						    if (this.status == 404){
+							    app.errorMessage = {
+								    title: 'Invalid Thread Id.',
+								    body: 'The thread you are trying to access does not exist.'
+							    };
+
 						    } else {
-							    if (jqXHR.status === 400){
-								    this.errorMessage.title = 'Invalid request body.';
-								    this.errorMessage.body = 'The server cannot handle this request.';
-							    } else {
-								    this.errorMessage.title = 'Uncaught error.';
-								    this.errorMessage.body = jqXHR.responseText;
-							    }
-						    }
-					    }
-				    });
-			    },
-
-			    postAnswer: function() {
-				    //Push the answer from this.threadView.userAnswerText to 
-				    //the current thread to the server. Clear the answer, 
-				    //reload via "loadThread".
-
-				    $.ajax({
-					    type: 'POST',
-					    url: 'http://localhost:8080/threads/' + app.threadView.threadId + '/answers/',
-					    beforeSend: function (xhr) {
-						    xhr.setRequestHeader ("Authorization", "Basic " + btoa(app.username + ":" + app.password))
-					    },
-					    data: {
-						    threadId: app.threadView.Id,
-					    },
-				    })
-				    .done(function(){
-					    app.userAnswerText = "";
-					    app.threadView.userAnswerText = "";
-					    app.loadThread(app.threadView.threadId);
-				    })
-				    .fail(function(){
-
-				    });
-			    },
-                            
-                            removeAnswer: function(answerId) {
-                                //remove answer with specified ID
-                            },
-
-		createThread: function() {
-		//Take the data from threadEditor and post it to the server,
-		//then go back to the start screen and reload the threads
-
-
-		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-                    if (this.status == 200) { // 200 oder 201?
-                        app.threadEditor.isVisible = false;
-                        app.threadView.isVisible = false;
-                        loadThreadPreviews();
-                    } else {
-                        if (this.status == 401){
-                            app.errorMessage = {
-                                        title: 'Invalid Authentication.',
-                                        body: 'You have no permission for this action.'
-                            };
-                        } else {
-                            if (this.status == 400){
-                                app.errorMessage = {
-                                        title: 'Invalid request body.',
-                                        body: 'The server cannot handle this request.'
-                                };
-
-                            } else {
-                                app.errorMessage = {
-                                        title: 'Uncaught error.',
-                                        body: jqXHR.responseText
-                                };
+							    app.errorMessage = {
+								    title: 'Uncaught error.',
+                                                                    body: 'An unknown error occured.'
+                                                    };
+                                            }
+                                    }
                             }
-                        }
-                     }
-                    };
-                    xhttp.open("POST", "http://localhost:8080/threads", true);
-                    xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
-                    xhttp.setRequestHeader('Accept', 'application/json');
-                    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                    xhttp.send("title=" + ('#threadEditor.title') + "&body=" + ('#threadEditor.body'));
+                            };
 
-			    }
+                            xhttp.open("GET", "/threads/" + threadId, true);
+                            xhttp.send();
+                    },
+                    changeAnswerState: function(answerId, isAccepted) {
+                            //Mark answer as accepted on the server and update value
+                            //here (loadThread again, checked boxes may not update otherwise)
+                            var xhttp = new XMLHttpRequest();
+                            xhttp.onreadystatechange = function() {
+                                    if (xhttp.readyState === XMLHttpRequest.DONE && (this.status == 200)) { 
+                                            app.threadView.data.answers[answerId].isAccepted = isAccepted;
+                                            app.loadThread(app.threadView.data.threadId);
+                                    } else {
+                                            if (this.status == 401){
+                                                    app.errorMessage = {
+                                                            title: 'Invalid Authentication.',
+                                                            body: 'You have no permission for this action.'
+                                                    };
+                                            } else {
+                                                    if (this.status == 400){
+                                                            app.errorMessage = {
+                                                                    title: 'Invalid request body.',
+                                                                    body: 'The server cannot handle this request.'
+                                                            };
+
+                                                    } else { 
+                                                            if(this.status == 404) {
+                                                                    app.errorMessage = {
+                                                                        title: 'Invalid thread or answer Id.',
+                                                                        body: 'The thread or answer you are trying to access does not exist.'
+                                                                    };
+
+                                                        } else {
+                                                            app.errorMessage = {
+                                                                    title: 'Uncaught error.',
+                                                                    body: 'An unknown error occured.' 
+                                                            };
+                                                        }
+                                                    } 
+                                            }
+                                    }
+                            };
+
+                            xhttp.open("POST", "http://localhost:8080/threads/" + app.threadView.data.threadId + "/answers/" + answerId, true);
+                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
+                            xhttp.setRequestHeader('Accept', 'application/json');
+                            xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                            xhttp.send("isAccepted=" + isAccepted);
+
+
+                    },
+
+                    postAnswer: function() {
+                            //Push the answer from this.threadView.userAnswerText to 
+                            //the current thread to the server. Clear the answer, 
+                            //reload via "loadThread".
+                            var xhttp = new XMLHttpRequest();
+                            xhttp.onreadystatechange = function() {
+                                    if (xhttp.readyState === XMLHttpRequest.DONE && (this.status == 201)) { 
+                                            app.threadView.userAnswerText = "";
+                                            app.loadThread(app.threadView.data.threadId);
+                                    } else {
+                                            if (this.status == 401){
+                                                    app.errorMessage = {
+                                                            title: 'Invalid Authentication.',
+                                                            body: 'You have no permission for this action.'
+                                                    };
+                                            } else {
+                                                    if (this.status == 400){
+                                                            app.errorMessage = {
+                                                                    title: 'Invalid request body.',
+                                                                    body: 'The server cannot handle this request.'
+                                                            };
+
+                                                    } else { 
+                                                            if(this.status == 404) {
+                                                                    app.errorMessage = {
+                                                                        title: 'Invalid Thread Id.',
+                                                                        body: 'The thread you are trying to access does not exist.'
+                                                                    };
+
+                                                        } else {
+                                                            app.errorMessage = {
+                                                                    title: 'Uncaught error.',
+                                                                    body: 'An unknown error occured.' 
+                                                            };
+                                                        }
+                                                    } 
+                                            }
+                                    }
+                            };
+
+                            xhttp.open("POST", "http://localhost:8080/threads/" + app.threadView.data.threadId + "/answers", true);
+                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
+                            xhttp.setRequestHeader('Accept', 'application/json');
+                            xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                            xhttp.send("threadId=" + app.threadView.data.threadId + "&body=" + app.threadView.userAnswerText);
+
+
+                    },
+
+                    removeAnswer: function(answerId) {
+                        //remove answer with specified ID
+                        var xhttp = new XMLHttpRequest();
+			    xhttp.onreadystatechange = function() {
+				    if (xhttp.readyState === XMLHttpRequest.DONE && (this.status == 205)) { 
+                                            app.threadView.isVisible = false;
+                                            app.loadThreadPreviews();
+                                            app.threadPreview.isVisible = true;
+				    } else {
+					    if (this.status == 401){
+						    app.errorMessage = {
+							    title: 'Invalid Authentication.',
+							    body: 'You have no permission for this action.'
+						    };
+					    } else {
+						    if (this.status == 404){
+							    app.errorMessage = {
+								    title: 'Invalid Thread Id.',
+								    body: 'The thread you are trying to access does not exist.'
+							    };
+
+						    } else {
+                                                        if (this.status == 403){
+                                                                app.errorMessage = {
+                                                                        title: 'Missing Permission.',
+                                                                        body: 'You have no permission to delete this thread.'
+                                                                };
+                                                            } else {
+                                                                    app.errorMessage = {
+                                                                            title: 'Uncaught error.',
+                                                                            body: 'An unknown error occured.'
+
+                                                            };
+                                                    }
+                                            }
+                                    }
+                            }
+                            };
+
+                            xhttp.open("DELETE", "http://localhost:8080/threads/" + app.threadView.data.threadId + "/answers/" + answerId, true);
+                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
+                            xhttp.send();
+                    },
+
+                    createThread: function() {
+                            //Take the data from threadEditor and post it to the server,
+                            //then go back to the start screen and reload the threads
+
+                            var xhttp = new XMLHttpRequest();
+                            xhttp.onreadystatechange = function() {
+                                    if (xhttp.readyState === XMLHttpRequest.DONE && (this.status == 201)) { 
+                                            app.threadEditor.isVisible = false;
+                                            app.threadView.isVisible = false;
+                                            app.loadThreadPreviews();
+                                    } else {
+                                            if (this.status == 401){
+                                                    app.errorMessage = {
+                                                            title: 'Invalid Authentication.',
+                                                            body: 'You have no permission for this action.'
+                                                    };
+                                            } else {
+                                                    if (this.status == 400){
+                                                            app.errorMessage = {
+                                                                    title: 'Invalid request body.',
+                                                                    body: 'The server cannot handle this request.'
+                                                            };
+
+                                                    } else {
+                                                            app.errorMessage = {
+                                                                    title: 'Uncaught error.',
+                                                                    body: 'An unknown error occured.'
+                                                            };
+                                                    }
+                                            }
+                                    }
+                            };
+
+                            xhttp.open("POST", "http://localhost:8080/threads", true);
+                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
+                            xhttp.setRequestHeader('Accept', 'application/json');
+                            xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                            xhttp.send("title=" + app.threadEditor.title + "&body=" + app.threadEditor.body);
+                    }
 
 		    }});
+
+
         </script>
     </body>
 </html>
