@@ -201,10 +201,10 @@
                         <div style="float:right">
                             <div v-if="username==threadView.data.author">
                                 Mark as accepted answer:
-                                <a href="#" v-if="!a.isAccepted" v-on:click="changeAnswerState(aid, true)">
+                                <a href="#" v-if="!a.isAccepted" v-on:click="changeAnswerState(a.id, true)">
                                     <i class="glyphicon glyphicon-unchecked"></i>
                                 </a>
-                                <a href="#" v-if="a.isAccepted" v-on:click="changeAnswerState(aid, false)">
+                                <a href="#" v-if="a.isAccepted" v-on:click="changeAnswerState(a.id, false)">
                                     <i class="glyphicon glyphicon-check"></i>
                                 </a>
                             </div>
@@ -215,7 +215,7 @@
                             </div>
                         </div>
                         <div v-if="username==a.author" style="float:right; padding-right:20px">
-                            <a href="#" v-on:click="removeAnswer(aid)">Remove answer</a>
+                            <a href="#" v-on:click="removeAnswer(a.id)">Remove answer</a>
                         </div>
                     </div>
                     <div class="panel-body">
