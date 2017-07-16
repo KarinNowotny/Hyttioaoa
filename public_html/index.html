@@ -532,7 +532,7 @@
                         var xhttp = new XMLHttpRequest();
 			    xhttp.onreadystatechange = function() {
 				    if (xhttp.readyState === XMLHttpRequest.DONE) {
-					    if (this.status == 205) { 
+					    if (this.status == 200) { 
 						    app.threadView.isVisible = false;
 						    app.loadThreadPreviews();
 						    app.threadPreview.isVisible = true;
