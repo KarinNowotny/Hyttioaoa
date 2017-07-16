@@ -488,7 +488,6 @@
                             xhttp.onreadystatechange = function() {
 				    if (xhttp.readyState === XMLHttpRequest.DONE) {
 					    if (this.status == 200) { 
-						    app.threadView.data.answers[answerId].isAccepted = isAccepted;
 						    app.loadThread(app.threadView.data.id);
 					    } else {
 						    app.showErrorFromstatus(this.status, "");
