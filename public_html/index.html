@@ -383,7 +383,7 @@
 				    }
 			    };
 
-			    xhttp.open("GET", "/users", true);
+			    xhttp.open("GET", "/login", true);
                             xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
 			    xhttp.send();
 		    },
@@ -418,7 +418,7 @@
                                     }
                             };
 
-                            xhttp.open("POST", "http://localhost:8080/users/", true);
+                            xhttp.open("POST", "/users", true);
                             xhttp.setRequestHeader('Accept', 'application/json');
                             xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                             xhttp.send("username=" + app.username + "&password=" + app.password);
@@ -592,7 +592,7 @@
                                     }
                             };
 
-                            xhttp.open("POST", "http://localhost:8080/threads/" + app.threadView.data.threadId + "/answers/" + answerId, true);
+                            xhttp.open("POST", "/threads/" + app.threadView.data.id + "/answers/" + answerId, true);
                             xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
                             xhttp.setRequestHeader('Accept', 'application/json');
                             xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -641,7 +641,7 @@
                                     }
                             };
 
-                            xhttp.open("POST", "http://localhost:8080/threads/" + app.threadView.data.threadId + "/answers", true);
+                            xhttp.open("POST", "/threads/" + app.threadView.data.id + "/answers", true);
                             xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
                             xhttp.setRequestHeader('Accept', 'application/json');
                             xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -689,7 +689,7 @@
                             }
                             };
 
-                            xhttp.open("DELETE", "http://localhost:8080/threads/" + app.threadView.data.threadId + "/answers/" + answerId, true);
+                            xhttp.open("DELETE", "/threads/" + app.threadView.data.id + "/answers/" + answerId, true);
                             xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
                             xhttp.send();
                     },
@@ -727,7 +727,7 @@
                                     }
                             };
 
-                            xhttp.open("POST", "http://localhost:8080/threads", true);
+			    xhttp.open("POST", "/threads", true);
                             xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
                             xhttp.setRequestHeader('Accept', 'application/json');
                             xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
