@@ -467,7 +467,16 @@
 				    }
 			    };
 
-			    xhttp.open("GET", "/threads", true);
+
+			    var url = "/threads";
+			    var filter = app.threadPreview.filterId;
+			    if(filter == 1)
+				    url = "/threads/unanswered";
+			    else if(filter == 2)
+				    url = "/threads/unsolved";
+
+
+			    xhttp.open("GET", url, true);
 			    xhttp.send();
 		    },
                     
