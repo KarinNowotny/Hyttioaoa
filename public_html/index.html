@@ -373,7 +373,7 @@
 					   
 
 			    xhttp.open("GET", "/login", true);
-                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
+                            xhttp.setRequestHeader("Authorization", "Basic " + btoa(app.username + ":" + app.password));
 			    xhttp.send();
 		    },
 
@@ -454,7 +454,6 @@
 			    };
 
                             xhttp.open("DELETE", "/threads/" + threadId, true);
-                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass")); //TODO replace with app.username ...
                             xhttp.send();
 
                     },
@@ -497,7 +496,6 @@
 			    };
 
                             xhttp.open("POST", "/threads/" + app.threadView.data.id + "/answers/" + answerId, true);
-                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
                             xhttp.setRequestHeader('Accept', 'application/json');
                             xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                             xhttp.send("isAccepted=" + isAccepted);
@@ -520,7 +518,6 @@
 			    };
 
                             xhttp.open("POST", "/threads/" + app.threadView.data.id + "/answers", true);
-                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
                             xhttp.setRequestHeader('Accept', 'application/json');
                             xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                             xhttp.send("threadId=" + app.threadView.data.id + "&body=" + app.threadView.userAnswerText);
@@ -544,7 +541,6 @@
 			    };
 
                             xhttp.open("DELETE", "/threads/" + app.threadView.data.id + "/answers/" + answerId, true);
-                            xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
                             xhttp.send();
 
                     },
@@ -567,7 +563,6 @@
 			    };
 
 			    xhttp.open("POST", "/threads", true);
-			    xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
 			    xhttp.setRequestHeader('Accept', 'application/json');
 			    xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                             xhttp.send("title=" + app.threadEditor.title + "&body=" + app.threadEditor.body);
