@@ -245,7 +245,7 @@
                        v-model="threadEditor.title" style="width:100%">
                 <br/>
                 <textarea class="form-control" placeholder="Write your detailled question description here! Or leave it blank, I don't care." rows="8"
-                          v-model="threadView.userAnswerText" style="width:100%"></textarea>
+                          v-model="threadEditor.body" style="width:100%"></textarea>
                 <br/>
                 <a class="btn btn-primary btn-md" href="#" role="button" style="float:right"
                    v-on:click="createThread" onclick="makeButtonSound()">Post question</a>
