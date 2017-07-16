@@ -151,7 +151,7 @@
                             <p>{{tp.body.substring(0,110).trim() + (tp.body.length>110?"...":"")}}</p>
                             <a class="btn btn-danger" href="#" role="button"
                                v-on:click="removeThread(tp.id)"
-                               v-if="tp.author == username">
+                               v-if="tp.author == username && loggedIn">
                                 Remove thread
                             </a>
                             <a class="btn btn-default" href="#" role="button"
@@ -199,7 +199,7 @@
                     <div class="panel-heading">
                         <span>"{{a.author}}" wrote:</span>
                         <div style="float:right">
-                            <div v-if="username==threadView.data.author">
+                            <div v-if="username==threadView.data.author && loggedIn">
                                 Mark as accepted answer:
                                 <a href="#" v-if="!a.isAccepted" v-on:click="changeAnswerState(a.id, true)">
                                     <i class="glyphicon glyphicon-unchecked"></i>
@@ -214,7 +214,7 @@
                                 <i v-if="a.isAccepted" class="glyphicon glyphicon-checked"></i>
                             </div>
                         </div>
-                        <div v-if="username==a.author" style="float:right; padding-right:20px">
+                        <div v-if="username==a.author && loggedIn" style="float:right; padding-right:20px">
                             <a href="#" v-on:click="removeAnswer(a.id)">Remove answer</a>
                         </div>
                     </div>
