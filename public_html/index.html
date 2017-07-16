@@ -278,6 +278,7 @@
                             username: "",
                             password: "",
                             loggedIn: false,
+
                             threadPreview: {
                             isVisible: false,
                                     filterId:0,
@@ -295,11 +296,12 @@
                                     }
                                     }
                             },
+
                             threadView: {
                             isVisible: false,
                                     userAnswerText: "",//Contains the users answer text - only available if logged in
                                     data: {
-                                        threadId: 1,
+                                        id: 1,
                                         title: "Am I preganart?",
                                         date: Date.now(),
                                         author: "MandyGirlXoxo",
@@ -321,6 +323,7 @@
                                    
                                    
                             },
+
                             threadEditor: {
                             isVisible: false,
                                     title: "", //Contains the user-entered question title
@@ -382,8 +385,7 @@
 				    if (xhttp.readyState === XMLHttpRequest.DONE) {
 
 					    if (this.status == 201) { 
-						    app.loggedIn = true;
-						    //TODO signup UI form??
+						    app.logIn();
 					    } else {
 						    app.showErrorFromstatus(this.status, "");
 					    }
@@ -391,7 +393,6 @@
 			    };
 
                             xhttp.open("POST", "/users", true);
-                            xhttp.setRequestHeader('Accept', 'application/json');
                             xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
                             xhttp.send("username=" + app.username + "&password=" + app.password);
 		    },
