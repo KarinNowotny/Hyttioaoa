@@ -330,6 +330,31 @@
 	    methods: {
 		    //If problems occur, assign error object to this.errorMessage
 
+
+		    showErrorFromstatus : function(status, errormsg) { 
+
+			    //TODO extend for more statuses
+
+			    if (status == 404){
+				    app.errorMessage = {
+					    title: 'Login not successful.',
+					    body: 'Username or password wrong.'
+				    }
+			    }
+			    if (status == 400){
+				    app.errorMessage = {
+					    title: 'Invalid request body.',
+					    body: 'The server cannot handle this request.'
+				    };
+
+			    } else {
+				    app.errorMessage = {
+					    title: 'Uncaught error.',
+					    body: 'An unknown error occured. ' + errormsg 
+				    };
+			    }
+		    },
+
 		    logIn: function() {
                             var xhttp = new XMLHttpRequest();
 			    xhttp.onreadystatechange = function() {
