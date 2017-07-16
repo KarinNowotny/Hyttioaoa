@@ -150,12 +150,12 @@
                             </sub>
                             <p>{{tp.body.substring(0,110).trim() + (tp.body.length>110?"...":"")}}</p>
                             <a class="btn btn-danger" href="#" role="button"
-                               v-on:click="removeThread(tpid)"
+                               v-on:click="removeThread(tp.id)"
                                v-if="tp.author == username">
                                 Remove thread
                             </a>
                             <a class="btn btn-default" href="#" role="button"
-                               v-on:click="loadThread(tpid)">
+                               v-on:click="loadThread(tp.id)">
                                 Show thread &raquo;
                             </a>
                         </div>
