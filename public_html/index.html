@@ -654,8 +654,7 @@
                             xhttp.setRequestHeader("Authorization", "Basic " + btoa("user:pass"));
                             xhttp.setRequestHeader('Accept', 'application/json');
                             xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-                            xhttp.send("threadId=" + app.threadView.data.threadId + "&body=" + app.threadView.userAnswerText);
-
+                            xhttp.send("threadId=" + app.threadView.data.id + "&body=" + app.threadView.userAnswerText);
 
                     },
 
